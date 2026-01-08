@@ -60,8 +60,8 @@ var S = {
     S.Drawing.init('.canvas');
     document.body.classList.add('body--ready');
 
-
-    S.UI.simulate('|#countdown 3||Eva|2026|新年快乐|');
+    
+    S.UI.simulate('|#countdown 3||谢浩铭|2026|新年快乐|');
 
     S.Drawing.loop(function () {
       S.Shape.render();
@@ -246,7 +246,33 @@ S.Dot = function (x, y) {
   this.e = 0.07;
   this.s = true;
 
-  this.c = new S.Color(255, 255, 255, this.p.a);
+   // 生成随机基础色（HSL转RGB，方便做渐变）
+    const baseHue = Math.floor(Math.random() * 360); // 随机色相（0-359）
+    const lightness1 = 0.8; // 渐变起始亮度（较浅）
+    const lightness2 = 0.4; // 渐变结束亮度（较深）
+
+    // HSL转RGB函数（辅助生成渐变颜色）
+    const hslToRgb = (h, s, l, a) => {
+        s /= 100;
+        l /= 100;
+        const k = n => (n + h / 30) % 12;
+        const a1 = s * Math.min(l, 1 - l);
+        const f = n => l - a1 * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+        return new S.Color(
+            Math.round(f(0) * 255),
+            Math.round(f(8) * 255),
+            Math.round(f(4) * 255),
+            a
+        );
+    };
+
+    // 随机渐变的起始色（变量赋值）
+    this.startColor = hslToRgb(baseHue, 80, lightness1 * 100, this.p.a);
+    // 随机渐变的结束色（变量赋值）
+    this.endColor = hslToRgb(baseHue, 80, lightness2 * 100, this.p.a);
+
+    // 初始用起始色
+    this.c = this.startColor;
 
   this.t = this.clone();
   this.q = [];
